@@ -17,7 +17,7 @@ def create_video_with_audio_and_subtitles(background_clips_folder):
     video_file = add_audio_to_video(background_clips_folder, audio_file, output_video=f"final_audio{i + 1}.mp4")
 
     # Add subtitles to the final video
-    video_with_subtitles = add_subtitles_to_video(video_file, script_text, output_video_with_subs=f"final{i+1}.mp4")
+    video_with_subtitles = add_subtitles_to_video(video_file, audio_file, output_video_with_subs=f"final{i+1}.mp4")
 
     print(f"Video created with subtitles: {video_with_subtitles}")
 
