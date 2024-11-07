@@ -1,7 +1,7 @@
 import os
 from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip
 
-def add_subtitles_to_video(video_file, subtitle_text, output_video_with_subs="final_with_subtitles.mp4", output_folder="output_videos"):
+def add_subtitles_to_video(video_file, subtitle_text, output_video_with_subs="final_with_subtitles.mp4", output_folder="final_videos"):
     video = VideoFileClip(video_file)
 
     # Create a TextClip for each line of subtitles and set its position
@@ -11,6 +11,10 @@ def add_subtitles_to_video(video_file, subtitle_text, output_video_with_subs="fi
     # Overlay subtitles on the video
     video_with_subtitles = CompositeVideoClip([video, text_clip])
 
+     # Ensure the output folder exists
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+        
     output_path = os.path.join(output_folder, output_video_with_subs)
 
     # Write the final video with subtitles
