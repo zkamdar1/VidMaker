@@ -5,8 +5,8 @@ def add_subtitles_to_video(video_file, subtitle_text, output_video_with_subs="fi
     video = VideoFileClip(video_file)
 
     # Create a TextClip for each line of subtitles and set its position
-    text_clip = TextClip(subtitle_text, fontsize=24, color='white', font='Arial-Bold', stroke_color='black', stroke_width=1)
-    text_clip = text_clip.set_position(('center', 'bottom')).set_duration(video.duration)
+    text_clip = TextClip(subtitle_text, fontsize=24, color='white', font='Arial-Bold', stroke_color='gray', stroke_width=1.3)
+    text_clip = text_clip.set_position(('center', 'center')).set_duration(video.duration)
 
     # Overlay subtitles on the video
     video_with_subtitles = CompositeVideoClip([video, text_clip])

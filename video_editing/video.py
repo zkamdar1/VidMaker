@@ -2,7 +2,7 @@ import os
 import random
 from moviepy.editor import VideoFileClip, AudioFileClip, concatenate_videoclips
 
-def add_audio_to_video(background_clips_folder, audio_file, output_video="final_video.mp4", output_folder="output_videos"):
+def add_audio_to_video(background_clips_folder, audio_file, output_video, output_folder):
     # Load the generated audio file to get its duration
     audio = AudioFileClip(audio_file)
     audio_duration = audio.duration
@@ -46,3 +46,10 @@ def add_audio_to_video(background_clips_folder, audio_file, output_video="final_
     # Write the final video file
     final_clip.write_videofile(output_path, codec="libx264", audio_codec="aac")
     return output_path
+
+
+if __name__ == "__main__":
+    background_clips_folder = "background_clips"
+    script_text1 = "AI can help solve complex healthcare problems by analyzing medical data."
+    audio_file = "/Users/zaidkamdar/Desktop/Video_Maker/output_audio_ai.mp3"
+    script_text = add_audio_to_video(background_clips_folder, audio_file,output_video=f"final_video{5}.mp4", output_folder="my_videos")
