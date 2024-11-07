@@ -52,7 +52,7 @@ def generate_word_level_srt(audio_file_path, transcripts_folder="transcripts", o
     # Parameters to control subtitle grouping
     max_duration_per_subtitle = 5.0  # maximum duration in seconds
     max_chars_per_subtitle = 39      # maximum characters per subtitle
-    max_time_gap = 0.5               # maximum allowed gap between words in seconds
+    max_time_gap = 0.63               # maximum allowed gap between words in seconds
 
     current_subtitle = {
         "start_time": None,
