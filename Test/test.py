@@ -3,7 +3,7 @@ from google.cloud import speech
 client = speech.SpeechClient()
 
 # Path to your audio file
-audio_file_path = 'audio_outputs/output_audio_1730961681.mp3'
+audio_file_path = 'audio_outputs/output_audio_1731016706.mp3'
 
 with open(audio_file_path, 'rb') as f:
     content = f.read()

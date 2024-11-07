@@ -1,9 +1,9 @@
-from .Functionality.script_generation.script import generate_script
-from .Functionality.audio_generation.audio import generate_audio
-from .Functionality.video_editing.video import add_audio_to_video
-from .Functionality.sub_generation.sub import add_subtitles_to_video, generate_word_level_srt, clear_folder
-from .Functionality.utils.utils import ensure_folder_exists
-from .Functionality.music_generation.music import add_background_music
+from script_generation.script import generate_script
+from audio_generation.audio import generate_audio
+from video_editing.video import add_audio_to_video
+from sub_generation.sub import add_subtitles_to_video, generate_word_level_srt, clear_folder
+from utils.utils import ensure_folder_exists
+from music_generation.music import add_background_music
 
 import time
 
@@ -33,6 +33,7 @@ def create_video_with_audio_and_subtitles(background_clips_folder):
     clear_folder('audio_outputs')
     clear_folder('audio_vids')
     clear_folder('transcripts')
+    clear_folder('sub_vids')
 
 # Example usage
 if __name__ == "__main__":
