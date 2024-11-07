@@ -139,7 +139,7 @@ def format_timestamp(timestamp):
 
 
 # Function to add subtitles to video
-def add_subtitles_to_video(video_file, srt_file, output_video_with_subs, output_folder="final_videos"):
+def add_subtitles_to_video(video_file, srt_file, output_video_with_subs, output_folder="sub_vids"):
     # Load the video
     video = VideoFileClip(video_file)
     video_width = video.w
