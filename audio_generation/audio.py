@@ -1,4 +1,5 @@
 from openai import OpenAI
+import time
 import os
 client = OpenAI()
 
@@ -10,11 +11,10 @@ def generate_audio(script_text, output_folder="audio_outputs"):
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
-    # Extract the first word from script_text
-    first_word = script_text.split()[0].lower()  # Use `.lower()` to ensure filename is case insensitive
+    timestamp = int(time.time())
 
     # Generate the output audio file name using the first word, saved in the specified folder
-    output_audio_file = os.path.join(output_folder, f"output_audio_{first_word}.mp3")
+    output_audio_file = os.path.join(output_folder, f"output_audio_{timestamp}.mp3")
 
     # Call the API to create the audio content
     response = client.audio.speech.create(
