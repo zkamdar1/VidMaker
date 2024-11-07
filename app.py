@@ -1,7 +1,7 @@
 from script_generation.script import generate_script
 from audio_generation.audio import generate_audio
 from video_editing.video import add_audio_to_video
-from sub_generation.sub import add_subtitles_to_video, generate_word_level_srt
+from sub_generation.sub import add_subtitles_to_video, generate_word_level_srt, clear_folder
 from utils.utils import ensure_folder_exists
 import time
 
@@ -23,7 +23,12 @@ def create_video_with_audio_and_subtitles(background_clips_folder):
     # Add subtitles to the final video
     video_with_subtitles = add_subtitles_to_video(video_file, srt_file, output_video_with_subs=f"final{timestamp}.mp4")
 
-    print(f"Video created with subtitles: {video_with_subtitles}")
+    print(f"Final Video Created: {video_with_subtitles}")
+
+    # Clean up temporary files
+    clear_folder('audio_outputs')
+    clear_folder('audio_vids')
+    clear_folder('transcripts')
 
 # Example usage
 if __name__ == "__main__":
