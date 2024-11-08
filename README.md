@@ -147,11 +147,6 @@ This section explains the process of generating a video using Nebula, along with
 - **User Management**: Add user authentication and allow users to save and view their generated videos.
 - **Advanced Editing**: Incorporate more sophisticated video effects and transitions.
 
-## Contributions
-Contributions are welcome! Feel free to open issues, suggest enhancements, or create pull requests to improve Nebula.
-
-## License
-This project is licensed under the MIT License.
 
 ## Contact
 For any questions or suggestions, please contact [Your Name](mailto:your.email@example.com).
