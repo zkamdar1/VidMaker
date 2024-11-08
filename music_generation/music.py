@@ -76,7 +76,7 @@ def add_background_music(
         bg_music = concatenated_music.subclip(0, video_duration)
 
     # Reduce the volume of the background music
-    bg_music = bg_music.volumex(0.2)  # Adjust volume level as needed
+    bg_music = bg_music.volumex(0.15)  # Adjust volume level as needed
 
     # If the video has existing audio, combine it with the background music
     if video.audio:
@@ -93,7 +93,7 @@ def add_background_music(
     final_video = video.set_audio(final_audio)
 
     # Write the final video to the output file
-    final_video.write_videofile(output_path, codec="libx264", audio_codec="aac", fps=24)
+    final_video.write_videofile(output_path, codec="libx264", audio_codec="aac", fps=video.fps)
 
     # Close the clips to release resources
     video.close()

@@ -9,10 +9,13 @@ from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip
 
 timestamp = int(time.time())
 
-def generate_word_level_srt(audio_file_path, transcripts_folder="transcripts", output_srt_filename=f"transcript{timestamp}.srt"):
+def generate_word_level_srt(
+    audio_file_path,
+    transcripts_folder="transcripts",
+    output_srt_filename=f"transcript{timestamp}.srt",
+):
     # Ensure the output folder for transcripts exists
-    if not os.path.exists(transcripts_folder):
-        os.makedirs(transcripts_folder)
+    os.makedirs(transcripts_folder, exist_ok=True)
 
     # Generate full path for the output SRT file
     output_srt_path = os.path.join(transcripts_folder, output_srt_filename)
@@ -25,8 +28,10 @@ def generate_word_level_srt(audio_file_path, transcripts_folder="transcripts", o
         content = audio_file.read()
 
     audio = speech.RecognitionAudio(content=content)
+
+    # Configure the recognition settings
     config = speech.RecognitionConfig(
-        encoding=speech.RecognitionConfig.AudioEncoding.MP3,  # Adjust as needed
+        encoding=speech.RecognitionConfig.AudioEncoding.MP3,  # Adjust if needed
         language_code="en-US",
         sample_rate_hertz=16000,
         enable_word_time_offsets=True,
@@ -35,8 +40,9 @@ def generate_word_level_srt(audio_file_path, transcripts_folder="transcripts", o
     # Perform the transcription using long_running_recognize
     try:
         operation = client.long_running_recognize(config=config, audio=audio)
-        # Removed print statement
-        response = operation.result(timeout=300)
+        print("Waiting for operation to complete...")
+        response = operation.result(timeout=600)
+        print("Transcription completed.")
     except Exception as e:
         print(f"An error occurred during transcription: {e}")
         return None
@@ -45,96 +51,47 @@ def generate_word_level_srt(audio_file_path, transcripts_folder="transcripts", o
         print("No transcription results were returned.")
         return None
 
-    # Process the response to create SRT
+    # Process the response to create SRT entries for each word
     srt_lines = []
     counter = 1
 
-    # Parameters to control subtitle grouping
-    max_duration_per_subtitle = 5.0  # maximum duration in seconds
-    max_chars_per_subtitle = 34      # maximum characters per subtitle
-    max_time_gap = 0.63               # maximum allowed gap between words in seconds
-
-    current_subtitle = {
-        "start_time": None,
-        "end_time": None,
-        "words": [],
-        "chars": 0,
-        "duration": 0.0,
-        "last_word_end_time": None,
-    }
-
-    # Accumulate words and group them based on timing and length
     for result in response.results:
         alternative = result.alternatives[0]
-        # Removed print statement
+        words = alternative.words
 
-        for word_info in alternative.words:
-            word = word_info.word
-            start_time = word_info.start_time.total_seconds()
-            end_time = word_info.end_time.total_seconds()
-            word_duration = end_time - start_time
-            time_gap = 0 if current_subtitle["last_word_end_time"] is None else start_time - current_subtitle["last_word_end_time"]
+        for word in words:
+            # Extract start and end times using total_seconds()
+            start_time_seconds = word.start_time.total_seconds()
+            end_time_seconds = word.end_time.total_seconds()
+            word_text = word.word.strip()
 
-            # Check if we need to start a new subtitle
-            if (current_subtitle["chars"] + len(word) + 1 > max_chars_per_subtitle or
-                current_subtitle["duration"] + word_duration > max_duration_per_subtitle or
-                time_gap > max_time_gap):
+            # Ensure that end_time is after start_time
+            if end_time_seconds <= start_time_seconds:
+                end_time_seconds = start_time_seconds + 0.1  # Add a small duration
 
-                # If there are words collected, create a subtitle chunk
-                if current_subtitle["words"]:
-                    srt_lines.append(create_srt_chunk(current_subtitle["words"], counter))
-                    counter += 1
-                    current_subtitle = {
-                        "start_time": None,
-                        "end_time": None,
-                        "words": [],
-                        "chars": 0,
-                        "duration": 0.0,
-                        "last_word_end_time": None,
-                    }
+            # Format the timestamps into SRT format
+            start_time_srt = format_timestamp(start_time_seconds)
+            end_time_srt = format_timestamp(end_time_seconds)
 
-            # Add word to current subtitle
-            if current_subtitle["start_time"] is None:
-                current_subtitle["start_time"] = word_info.start_time
+            # Create SRT entry
+            srt_lines.append(f"{counter}\n{start_time_srt} --> {end_time_srt}\n{word_text}\n\n")
+            counter += 1
 
-            current_subtitle["end_time"] = word_info.end_time
-            current_subtitle["words"].append({
-                "word": word,
-                "start_time": word_info.start_time,
-                "end_time": word_info.end_time,
-            })
-            current_subtitle["chars"] += len(word) + 1  # +1 for space
-            current_subtitle["duration"] = (current_subtitle["end_time"].total_seconds() - current_subtitle["start_time"].total_seconds())
-            current_subtitle["last_word_end_time"] = end_time
-
-    # Add any remaining words as a subtitle
-    if current_subtitle["words"]:
-        srt_lines.append(create_srt_chunk(current_subtitle["words"], counter))
-
-    # Write SRT to file
-    with open(output_srt_path, "w", encoding='utf-8') as srt_file:
+    # Write the SRT file
+    with open(output_srt_path, "w", encoding="utf-8") as srt_file:
         srt_file.writelines(srt_lines)
 
-    # Removed print statement
+    print(f"SRT file created at: {output_srt_path}")
     return output_srt_path
 
-
-# Helper function to create SRT chunk
-def create_srt_chunk(words, counter):
-    start_time_srt = format_timestamp(words[0]["start_time"])
-    end_time_srt = format_timestamp(words[-1]["end_time"])
-    text = " ".join([word_info["word"] for word_info in words])
-
-    return f"{counter}\n{start_time_srt} --> {end_time_srt}\n{text}\n\n"
-
-# Helper function to format timestamp for SRT
-def format_timestamp(timestamp):
-    total_seconds = timestamp.total_seconds()
+def format_timestamp(total_seconds):
+    # Convert seconds to hours, minutes, seconds, milliseconds
     hours = int(total_seconds // 3600)
     minutes = int((total_seconds % 3600) // 60)
     seconds = int(total_seconds % 60)
-    milliseconds = int((total_seconds % 1) * 1000)
+    milliseconds = int(round((total_seconds % 1) * 1000))
 
+    # Format into SRT timestamp format
     return f"{hours:02}:{minutes:02}:{seconds:02},{milliseconds:03}"
 
 
@@ -154,7 +111,8 @@ def add_subtitles_to_video(video_file, srt_file, output_video_with_subs, output_
     # Define maximum width for the subtitle text box (e.g., 80% of video width)
     max_text_width = int(video_width * 0.88)
 
-    for start_time, end_time, text in subtitles:
+
+    for i, (start_time, end_time, text) in enumerate(subtitles):
         duration = end_time - start_time
 
         # Calculate desired vertical position (adjust the multiplier to move text higher or lower)
@@ -163,11 +121,11 @@ def add_subtitles_to_video(video_file, srt_file, output_video_with_subs, output_
         # Create shadow TextClip
         shadow_text_clip = TextClip(
             text.upper(),
-            fontsize=60,
+            fontsize=55,
             color='black',  # Shadow color
             font='Palatino-Bold',  # Ensure this font is available or provide the path
             stroke_color='black',
-            stroke_width=6.5,
+            stroke_width=5,
             method='caption',
             size=(max_text_width, None),
             align='center',
@@ -178,11 +136,11 @@ def add_subtitles_to_video(video_file, srt_file, output_video_with_subs, output_
         # Create a TextClip for each subtitle phrase with requested styles
         text_clip = TextClip(
             text.upper(),  # Convert text to uppercase
-            fontsize=60,   # Slightly smaller font size
+            fontsize=55,   # Slightly smaller font size
             color='white',
             font='Palatino-Bold',  # Updated font
             stroke_color='white',  # Outline for readability
-            stroke_width=3.5,        # Increased stroke width for more pronounced outline
+            stroke_width=2.5,        # Increased stroke width for more pronounced outline
             method='caption',      # Enable text wrapping
             size=(max_text_width, None),  # Set the width, height will be auto-calculated
             align='center',        # Center-align the text

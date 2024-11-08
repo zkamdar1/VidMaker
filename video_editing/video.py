@@ -4,7 +4,7 @@ from moviepy.editor import VideoFileClip, AudioFileClip, concatenate_videoclips
 
 def add_audio_to_video(background_clips_folder, audio_file, output_video, output_folder="audio_vids"):
     # Load the generated audio file to get its duration
-    audio = AudioFileClip(audio_file).volumex(1.0)
+    audio = AudioFileClip(audio_file).volumex(0.85)
     audio_duration = audio.duration
 
 
